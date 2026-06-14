@@ -1,8 +1,16 @@
 services:
+  db:
+    container_name: shoplite_db_staging
+
   api:
+    container_name: shoplite_api_staging
     environment:
       APP_VERSION: staging-starter
 
+  frontend:
+    container_name: shoplite_frontend_staging
+
   proxy:
+    container_name: shoplite_proxy_staging
     ports:
       - "8081:80"
