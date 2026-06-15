@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, main, 'feature/*' ]
     tags: [ 'v*.*.*' ]
   workflow_dispatch:
 
@@ -12,20 +12,41 @@ jobs:
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/')
     environment: staging
     env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_USERNAME: ${{ secrets.STAGING_DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.STAGING_DOCKERHUB_TOKEN }}
+      POSTGRES_DB: shoplite
+      POSTGRES_USER: shoplite
+      POSTGRES_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      HTTP_PORT: 8080
+      API_PORT: 3000
+      LOG_LEVEL: info
+      APP_VERSION: staging
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate .env
+        run: |
+          echo "NODE_ENV=production" > .env
+          echo "API_PORT=${{ env.API_PORT }}" >> .env
+          echo "HTTP_PORT=${{ env.HTTP_PORT }}" >> .env
+          echo "APP_VERSION=${{ env.APP_VERSION }}" >> .env
+          echo "POSTGRES_DB=${{ env.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ env.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}" >> .env
+          echo "DATABASE_URL=postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@db:5432/${{ env.POSTGRES_DB }}" >> .env
+          echo "LOG_LEVEL=${{ env.LOG_LEVEL }}" >> .env
+          cat .env
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to DockerHub (optional)
+      - name: Login to DockerHub
         continue-on-error: true
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: Build and push API
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
@@ -74,4 +95,89 @@ jobs:
       - name: Deploy to staging
         run: |
           docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.PROD_DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.PROD_DOCKERHUB_TOKEN }}
+      POSTGRES_DB: shoplite
+      POSTGRES_USER: shoplite
+      POSTGRES_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+      HTTP_PORT: 8080
+      API_PORT: 3000
+      LOG_LEVEL: info
+      APP_VERSION: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate .env
+        run: |
+          echo "NODE_ENV=production" > .env
+          echo "API_PORT=${{ env.API_PORT }}" >> .env
+          echo "HTTP_PORT=${{ env.HTTP_PORT }}" >> .env
+          echo "APP_VERSION=${{ env.APP_VERSION }}" >> .env
+          echo "POSTGRES_DB=${{ env.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ env.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}" >> .env
+          echo "DATABASE_URL=postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@db:5432/${{ env.POSTGRES_DB }}" >> .env
+          echo "LOG_LEVEL=${{ env.LOG_LEVEL }}" >> .env
+          cat .env
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        continue-on-error: true
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Build and push API
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        run: |
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }} ./api
+          docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }}
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }} ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:$TAG_NAME
+            docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:$TAG_NAME
+          fi
+
+      - name: Build API (local only)
+        if: ${{ env.DOCKERHUB_USERNAME == '' }}
+        run: |
+          docker build -t shoplite-api:${{ github.sha }} ./api
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag shoplite-api:${{ github.sha }} shoplite-api:$TAG_NAME
+          fi
+
+      - name: Build and push Frontend
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        run: |
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }} ./frontend
+          docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }}
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }} ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:$TAG_NAME
+            docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:$TAG_NAME
+          fi
+
+      - name: Build Frontend (local only)
+        if: ${{ env.DOCKERHUB_USERNAME == '' }}
+        run: |
+          docker build -t shoplite-frontend:${{ github.sha }} ./frontend
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag shoplite-frontend:${{ github.sha }} shoplite-frontend:$TAG_NAME
+          fi
+
+      - name: Deploy to production
+        run: |
+          docker compose -f docker-compose.yml up -d
 
