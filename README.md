@@ -233,9 +233,10 @@ Voir `docs/DORA.md` pour le détail.
 ## Documentation connexe
 
 - [Architecture détaillée](docs/ARCHITECTURE.md)
-- [Changelog](docs/CHANGELOG.md)
-- [Contribution](docs/CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Contribution](CONTRIBUTING.md)
 - [Gestion des risques](docs/GESTION_RISQUE_LIVRAISON.md)
+- [RACI / Organisation équipe](docs/RACI.md)
 - [Guide Registry](REGISTRY.md)
 - [Sécurité](docs/SECURITY.md)
 - [Environnements](docs/ENVIRONMENTS.md)
