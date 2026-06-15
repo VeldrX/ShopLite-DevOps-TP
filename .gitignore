@@ -13,3 +13,5 @@ backups/*.sql
 tmp
 junit.xml
 test-results.xml
+dumps/
+logs/*.json
