@@ -52,6 +52,20 @@ jobs:
           docker compose --project-name shoplite-staging --env-file .env.staging \
             -f docker-compose.yml -f docker-compose.staging.yml up -d
 
+      - name: Smoke test staging
+        run: |
+          sleep 15
+          BASE_URL=http://localhost:8081 sh scripts/smoke-test.sh
+
+      - name: Log deployment
+        run: |
+          echo "| ${{ github.sha }} | $(date -u '+%Y-%m-%d %H:%M UTC') | ${{ github.actor }} | staging | cd.yml deploy-staging | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+
   deploy-production:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -110,3 +124,16 @@ jobs:
         run: |
           docker compose --project-name shoplite-prod --env-file .env.prod \
             -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+      - name: Smoke test production
+        run: |
+          sleep 15
+          BASE_URL=http://localhost:8082 sh scripts/smoke-test.sh
+
+      - name: Log deployment
+        run: |
+          echo "## Deployment summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
