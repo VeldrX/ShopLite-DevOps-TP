@@ -68,7 +68,7 @@ jobs:
       - name: Smoke test staging
         run: |
           sleep 15
-          BASE_URL=http://localhost:8081 sh scripts/smoke-test.sh
+          sh scripts/smoke-test.sh 8081
 
       - name: Log deployment
         run: |
@@ -152,7 +152,7 @@ jobs:
       - name: Smoke test production
         run: |
           sleep 15
-          BASE_URL=http://localhost:8082 sh scripts/smoke-test.sh
+          sh scripts/smoke-test.sh 8082
 
       - name: Log deployment
         run: |
