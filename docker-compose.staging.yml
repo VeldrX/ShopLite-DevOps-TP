@@ -1,8 +1,27 @@
 services:
-  api:
+  db:
+    container_name: shoplite_db_staging
     environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shoplite_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-shoplite_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shoplite_staging_pass}
+    volumes:
+      - shoplite_pgdata_staging:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  api:
+    container_name: shoplite_api_staging
+    environment:
+      NODE_ENV: staging
+      DATABASE_URL: postgres://${POSTGRES_USER:-shoplite_staging}:${POSTGRES_PASSWORD:-shoplite_staging_pass}@db:5432/${POSTGRES_DB:-shoplite_staging}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       APP_VERSION: staging-starter
 
+  frontend:
+    container_name: shoplite_frontend_staging
+
   proxy:
-    ports:
-      - "8081:80"
+    container_name: shoplite_proxy_staging
+
+volumes:
+  shoplite_pgdata_staging:
