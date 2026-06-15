@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
       status: "ok",
       response_time_ms: result?.rowCount ? 1 : 0, // simplifié
     };
-  } catch (error) {
+  } catch {
     checks.database = {
       status: "error",
       error: "Database connection failed",
@@ -44,7 +44,7 @@ router.get("/ready", async (req, res) => {
       status: "ok",
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     res.status(503).json({
       status: "error",
       message: "Database not ready",
