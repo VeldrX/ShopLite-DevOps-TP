@@ -15,6 +15,13 @@ router.get("/", async (req, res) => {
     await db.query("SELECT 1");
     checks.database = "ok";
   } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: error.message,
+        timestamp: new Date().toISOString()
+      })
+    );
     checks.database = "error";
     status = 503;
   }
