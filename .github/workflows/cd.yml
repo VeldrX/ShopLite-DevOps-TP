@@ -32,22 +32,44 @@ jobs:
         run: |
           docker build -t ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }} ./api
           docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }}
+          # If this is a version tag (v*.*.*), also tag and push with the version
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:${{ github.sha }} ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:$TAG_NAME
+            docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-api:$TAG_NAME
+          fi
 
       - name: Build API (local only)
         if: ${{ env.DOCKERHUB_USERNAME == '' }}
         run: |
           docker build -t shoplite-api:${{ github.sha }} ./api
+          # If this is a version tag (v*.*.*), also tag with the version
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag shoplite-api:${{ github.sha }} shoplite-api:$TAG_NAME
+          fi
 
       - name: Build and push Frontend
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         run: |
           docker build -t ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }} ./frontend
           docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }}
+          # If this is a version tag (v*.*.*), also tag and push with the version
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:${{ github.sha }} ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:$TAG_NAME
+            docker push ${{ env.DOCKERHUB_USERNAME }}/shoplite-frontend:$TAG_NAME
+          fi
 
       - name: Build Frontend (local only)
         if: ${{ env.DOCKERHUB_USERNAME == '' }}
         run: |
           docker build -t shoplite-frontend:${{ github.sha }} ./frontend
+          # If this is a version tag (v*.*.*), also tag with the version
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            docker tag shoplite-frontend:${{ github.sha }} shoplite-frontend:$TAG_NAME
+          fi
 
       - name: Deploy to staging
         run: |
