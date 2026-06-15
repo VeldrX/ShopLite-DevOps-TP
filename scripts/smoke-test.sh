@@ -4,6 +4,7 @@ set -eu
 BASE_URL="${BASE_URL:-http://localhost:8080}"
 
 curl -fsS "$BASE_URL/api/health"
+curl -fsS "$BASE_URL/api/ready"
 curl -fsS "$BASE_URL/api/products"
 
-echo "Smoke test starter OK"
+echo "Smoke test OK"
