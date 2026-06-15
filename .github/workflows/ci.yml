@@ -43,31 +43,39 @@ jobs:
           cd api
           npm ci
 
+      - name: Check formatting
+        run: |
+          cd api
+          npm run format:check
+
       - name: Lint
         run: |
           cd api
           npm run lint
 
-      - name: Test with PostgreSQL
+      - name: Test with PostgreSQL (with coverage)
         env:
           DATABASE_URL: postgres://shoplite:shoplite_password@localhost:5432/shoplite_test
           NODE_ENV: test
         run: |
           cd api
-          npx jest --reporters=default --reporters=jest-junit --runInBand
-
-      - name: List test results
-        run: |
-          cd api
-          ls -la
-          ls -la test-results.xml 2>/dev/null || echo "File not found"
+          npm run test:coverage
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-node-${{ matrix.node-version }}
-          path: api/test-results.xml
+          path: |
+            api/test-results.xml
+            api/coverage
+
+      - name: Upload coverage to Codecov (optional)
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./api/coverage
+          fail_ci_if_error: false
 
   build:
     needs: test
