@@ -14,31 +14,27 @@ app.get("/", (req, res) => {
   res.json({
     name: "ShopLite API",
     version: "0.1.0",
-    endpoints: ["/health", "/products"],
+    endpoints: ["/health", "/products"]
   });
 });
 
 app.use("/health", healthRoutes);
 app.use("/products", productRoutes);
 
-app.get("/ready", (req, res) => {
-  res.json({ status: "ok" });
-});
-
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-app.use((err, req, res, _next) => {
-  // Stocker le message d'erreur pour le logger
-  res.locals.errorMessage = err.message;
+app.use((err, req, res, next) => {
+  console.error(
+    JSON.stringify({
+      level: "error",
+      message: err.message,
+      timestamp: new Date().toISOString()
+    })
+  );
 
-  // Return 400 for JSON parsing errors, 500 otherwise
-  const statusCode = err.type === "entity.parse.failed" ? 400 : 500;
-  const errorMessage =
-    statusCode === 400 ? "Invalid JSON" : "Internal server error";
-
-  res.status(statusCode).json({ error: errorMessage });
+  res.status(500).json({ error: "Internal server error" });
 });
 
 module.exports = app;

@@ -14,16 +14,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     networks:
       - shoplite_net
 
@@ -38,38 +28,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/ready"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     networks:
       - shoplite_net
 
   frontend:
     build: ./frontend
     container_name: shoplite_frontend
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     networks:
       - shoplite_net
 
@@ -83,16 +47,6 @@ services:
     depends_on:
       - api
       - frontend
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
     networks:
       - shoplite_net
 
