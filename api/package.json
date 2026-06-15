@@ -25,5 +25,8 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "jest-junit": {
+    "outputPath": "./test-results.xml"
   }
 }
