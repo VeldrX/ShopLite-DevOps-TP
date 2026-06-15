@@ -72,3 +72,6 @@ Ouvrir `frontend/src/index.html` dans un navigateur ou le servir avec un serveur
 
 Le projet contient maintenant le minimum pour tourner avec Docker.
 Les etudiants doivent l'ameliorer pendant le TP pour atteindre les exigences finales.
+
+### Execution
+Faire relire une PR par un binôme.
