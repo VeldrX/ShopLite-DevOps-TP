@@ -54,7 +54,7 @@ jobs:
           NODE_ENV: test
         run: |
           cd api
-          npm test
+          npx jest --reporters=default --reporters=jest-junit --runInBand
 
       - name: Upload test results
         if: always()
