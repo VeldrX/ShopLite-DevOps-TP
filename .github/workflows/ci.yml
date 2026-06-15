@@ -43,6 +43,18 @@ jobs:
           cd api
           npm ci
 
+      - name: Audit dependencies
+        continue-on-error: true
+        run: |
+          cd api
+          npm audit
+
+      - name: Check outdated dependencies
+        continue-on-error: true
+        run: |
+          cd api
+          npm outdated
+
       - name: Check formatting
         run: |
           cd api
@@ -102,3 +114,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t shoplite-api:ci-${{ matrix.node-version }} ./api
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: shoplite-api:ci-${{ matrix.node-version }}
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH,MEDIUM
