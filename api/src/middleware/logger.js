@@ -60,7 +60,7 @@ module.exports = function logger(req, res, next) {
       status: res.statusCode,
       duration_ms: duration,
       remote_addr: req.ip || req.connection?.remoteAddress || "unknown",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Ajouter les query parameters (sans secrets)
@@ -71,7 +71,7 @@ module.exports = function logger(req, res, next) {
     // Pour les erreurs 5xx, logger le message d'erreur stocké dans res.locals
     if (level === "error" && res.locals && res.locals.errorMessage) {
       logEntry.error = {
-        message: res.locals.errorMessage
+        message: res.locals.errorMessage,
       };
     }
 
