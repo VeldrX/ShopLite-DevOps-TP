@@ -4,13 +4,9 @@ set -eu
 # Usage: sh scripts/smoke-test.sh [port]
 # Runs smoke tests: health, ready, products endpoints and data verification.
 # port: 8080 (default), 8081 (staging), 8082 (prod)
-# Also supports BASE_URL env var (backward compat with CD workflows).
 
-if [ -n "${1:-}" ]; then
-  BASE_URL="http://localhost:$1"
-else
-  BASE_URL="${BASE_URL:-http://localhost:8080}"
-fi
+PORT="${1:-8080}"
+BASE_URL="http://localhost:$PORT"
 
 echo "Smoke testing $BASE_URL..."
 echo ""
