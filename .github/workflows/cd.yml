@@ -51,6 +51,5 @@ jobs:
 
       - name: Deploy to staging
         run: |
-          cd infra
-          docker compose -f ../docker-compose.staging.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 

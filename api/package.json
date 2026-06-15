@@ -7,8 +7,11 @@
     "start": "node src/server.js",
     "dev": "node src/server.js",
     "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
     "lint": "eslint src tests",
-    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\""
+    "lint:fix": "eslint src tests --fix",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\""
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -24,7 +27,27 @@
     "supertest": "^7.0.0"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/server.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "reporters": [
+      "default",
+      "jest-junit"
+    ]
+  },
+  "jest-junit": {
+    "outputPath": "./test-results.xml"
   },
   "jest-junit": {
     "outputPath": "./test-results.xml"
