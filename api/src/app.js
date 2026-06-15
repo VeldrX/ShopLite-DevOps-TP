@@ -26,13 +26,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, _next) => {
-  console.error(
-    JSON.stringify({
-      level: "error",
-      message: err.message,
-      timestamp: new Date().toISOString(),
-    }),
-  );
+  // Stocker le message d'erreur pour le logger
+  res.locals.errorMessage = err.message;
 
   // Return 400 for JSON parsing errors, 500 otherwise
   const statusCode = err.type === "entity.parse.failed" ? 400 : 500;
