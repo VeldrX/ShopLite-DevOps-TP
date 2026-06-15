@@ -21,6 +21,10 @@ app.get("/", (req, res) => {
 app.use("/health", healthRoutes);
 app.use("/products", productRoutes);
 
+app.get("/ready", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });

@@ -1,0 +1,27 @@
+services:
+  db:
+    container_name: shoplite_db_prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shoplite_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-shoplite_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shoplite_prod_pass}
+    volumes:
+      - shoplite_pgdata_prod:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  api:
+    container_name: shoplite_api_prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-shoplite_prod}:${POSTGRES_PASSWORD:-shoplite_prod_pass}@db:5432/${POSTGRES_DB:-shoplite_prod}
+      LOG_LEVEL: ${LOG_LEVEL:-warn}
+      APP_VERSION: ${APP_VERSION:-prod}
+
+  frontend:
+    container_name: shoplite_frontend_prod
+
+  proxy:
+    container_name: shoplite_proxy_prod
+
+volumes:
+  shoplite_pgdata_prod:
