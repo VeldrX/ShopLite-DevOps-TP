@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../src/app");
+const db = require("../src/db");
 const { initializeDatabase } = require("./initialize-db");
 
 // Run integration tests only if DATABASE_URL is set (CI environment)
@@ -31,6 +32,10 @@ if (shouldRunIntegration) {
       expect(product).toHaveProperty("name");
       expect(product).toHaveProperty("description");
       expect(product).toHaveProperty("price_cents");
+    });
+
+    afterAll(() => {
+      return db.getPool().end();
     });
   });
 } else {

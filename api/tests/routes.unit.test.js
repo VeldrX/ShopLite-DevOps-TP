@@ -26,6 +26,15 @@ describe("Routes unit tests with mocked DB", () => {
     });
   });
 
+  describe("GET /health/ready", () => {
+    it("returns 503 when DB query fails", async () => {
+      db.query.mockRejectedValue(new Error("DB not ready"));
+      const response = await request(app).get("/health/ready");
+      expect(response.status).toBe(503);
+      expect(response.body.status).toBe("error");
+    });
+  });
+
   describe("GET /products", () => {
     it("returns 200 and product list when DB succeeds", async () => {
       const mockRows = [
