@@ -11,3 +11,5 @@ logs
 backup-*.sql
 backups/*.sql
 tmp
+junit.xml
+test-results.xml

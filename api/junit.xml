@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="15" failures="0" errors="0" time="2.503">
+  <testsuite name="Routes unit tests with mocked DB" errors="0" failures="0" skipped="0" timestamp="2026-06-15T21:23:48" time="1.549" tests="5">
+    <testcase classname="Routes unit tests with mocked DB GET /health returns 200 when DB query succeeds" name="Routes unit tests with mocked DB GET /health returns 200 when DB query succeeds" time="0.048">
+    </testcase>
+    <testcase classname="Routes unit tests with mocked DB GET /health returns 503 when DB query fails" name="Routes unit tests with mocked DB GET /health returns 503 when DB query fails" time="0.008">
+    </testcase>
+    <testcase classname="Routes unit tests with mocked DB GET /health/ready returns 503 when DB query fails" name="Routes unit tests with mocked DB GET /health/ready returns 503 when DB query fails" time="0.005">
+    </testcase>
+    <testcase classname="Routes unit tests with mocked DB GET /products returns 200 and product list when DB succeeds" name="Routes unit tests with mocked DB GET /products returns 200 and product list when DB succeeds" time="0.005">
+    </testcase>
+    <testcase classname="Routes unit tests with mocked DB GET /products returns 500 when DB query fails" name="Routes unit tests with mocked DB GET /products returns 500 when DB query fails" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="Error handling tests" errors="0" failures="0" skipped="0" timestamp="2026-06-15T21:23:49" time="0.27" tests="5">
+    <testcase classname="Error handling tests GET /nonexistent returns 404" name="Error handling tests GET /nonexistent returns 404" time="0.006">
+    </testcase>
+    <testcase classname="Error handling tests Malformed JSON returns 400" name="Error handling tests Malformed JSON returns 400" time="0.03">
+    </testcase>
+    <testcase classname="Error handling tests Health endpoint returns 200 when DB is available" name="Error handling tests Health endpoint returns 200 when DB is available" time="0.021">
+    </testcase>
+    <testcase classname="Error handling tests GET /health/ready returns 200 when DB is available" name="Error handling tests GET /health/ready returns 200 when DB is available" time="0.008">
+    </testcase>
+    <testcase classname="Error handling tests Request with sensitive query params is handled" name="Error handling tests Request with sensitive query params is handled" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2026-06-15T21:23:50" time="0.212" tests="2">
+    <testcase classname=" GET / retourne le nom de l&apos;API" name=" GET / retourne le nom de l&apos;API" time="0.007">
+    </testcase>
+    <testcase classname=" GET /ready retourne ok" name=" GET /ready retourne ok" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="Integration tests (skipped - set DATABASE_URL to run)" errors="0" failures="0" skipped="0" timestamp="2026-06-15T21:23:50" time="0.239" tests="1">
+    <testcase classname="Integration tests (skipped - set DATABASE_URL to run) skipped because DATABASE_URL not set" name="Integration tests (skipped - set DATABASE_URL to run) skipped because DATABASE_URL not set" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="db.getPool()" errors="0" failures="0" skipped="0" timestamp="2026-06-15T21:23:50" time="0.073" tests="2">
+    <testcase classname="db.getPool() should create a new pool if none exists" name="db.getPool() should create a new pool if none exists" time="0.002">
+    </testcase>
+    <testcase classname="db.getPool() should return the same pool on subsequent calls" name="db.getPool() should return the same pool on subsequent calls" time="0.002">
+    </testcase>
+  </testsuite>
+</testsuites>

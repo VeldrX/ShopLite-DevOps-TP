@@ -1,13 +1,124 @@
-name: CI starter a completer
+name: CI
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ develop, main, 'feature/*' ]
+  pull_request:
+    branches: [ develop, main ]
 
 jobs:
-  consigne:
+  test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: shoplite_test
+          POSTGRES_USER: shoplite
+          POSTGRES_PASSWORD: shoplite_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
     steps:
-      - name: Consigne
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
         run: |
-          echo "Ce workflow est volontairement minimal."
-          echo "Les etudiants doivent ajouter push, pull_request, npm ci, npm test, npm audit, npm outdated et docker compose build."
+          cd api
+          npm ci
+
+      - name: Audit dependencies
+        continue-on-error: true
+        run: |
+          cd api
+          npm audit
+
+      - name: Check outdated dependencies
+        continue-on-error: true
+        run: |
+          cd api
+          npm outdated
+
+      - name: Check formatting
+        run: |
+          cd api
+          npm run format:check
+
+      - name: Lint
+        run: |
+          cd api
+          npm run lint
+
+      - name: Test with PostgreSQL (with coverage)
+        env:
+          DATABASE_URL: postgres://shoplite:shoplite_password@localhost:5432/shoplite_test
+          NODE_ENV: test
+        run: |
+          cd api
+          npm run test:coverage
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-node-${{ matrix.node-version }}
+          path: |
+            api/test-results.xml
+            api/coverage
+
+      - name: Upload coverage to Codecov (optional)
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./api/coverage
+          fail_ci_if_error: false
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd api
+          npm ci --only=production
+
+      - name: Build Docker image
+        run: |
+          docker build -t shoplite-api:ci-${{ matrix.node-version }} ./api
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: shoplite-api:ci-${{ matrix.node-version }}
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH,MEDIUM
